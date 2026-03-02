@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Office Help Check-in</title>
+</head>
+<body>
+  <h2>Recording your visit...</h2>
+
+  <script>
+    fetch("https://script.google.com/macros/s/AKfycbwVa0hCBe8rBkMOjY1ARvPK1Zj818jwm_-cWKevTNPOMMCD1X0Pdk2OE8xa62VYFAGg9A/exec", {
+      method: "POST",
+      body: JSON.stringify({ office: "Math" }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      document.body.innerHTML = "<h2>Check-in recorded. Thank you.</h2>";
+    })
+    .catch(error => {
+      document.body.innerHTML = "<h2>Error recording visit.</h2>";
+    });
+  </script>
+</body>
+</html>
