@@ -8,23 +8,22 @@
   <h2>Recording your visit...</h2>
 
   <script>
-    // Replace this URL with your deployed Google Apps Script Web App URL
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrfEHTwLLNeij-9Z5EDFHcapA5qcMGE3hDoe3n3oaKVNI0IAeJWqjclo39MCRurrAVtg/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk_M5DMH90XepLKWT6m9SFihrQYDeHaJwrP1q8s1yK3l-WvH_7iLAK-C9982CeRUW3ZQ/exec";
+
+    const formData = new FormData();
+    formData.append("office", "Help");
 
     fetch(SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ office: "Help" })
+      body: formData
     })
-    .then(response => response.json())
+    .then(response => response.text())
     .then(data => {
-      // Confirm success
       document.body.innerHTML = "<h2>Check-in recorded. Thank you.</h2>";
     })
     .catch(error => {
-      // Display error message if request fails
       document.body.innerHTML = "<h2>Error recording visit. Please try again.</h2>";
-      console.error("Error posting to Apps Script:", error);
+      console.error(error);
     });
   </script>
 </body>
