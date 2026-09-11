@@ -1,27 +1,138 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coquitlam College Service Check-in</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 400px; margin: 40px auto; padding: 20px; }
-    select, button { width: 100%; padding: 12px; margin-top: 10px; font-size: 16px; box-sizing: border-box; }
-    .hidden { display: none; }
+    :root {
+      --cc-navy: #002147;
+      --cc-gold: #C5A059;
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #666666;
+    }
+
+    body { 
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 420px;
+      padding: 32px 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 33, 71, 0.08);
+      border-top: 4px solid var(--cc-navy);
+      box-sizing: border-box;
+    }
+
+    h2 {
+      margin-top: 0;
+      color: var(--cc-navy);
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    select { 
+      width: 100%; 
+      padding: 12px 14px; 
+      font-size: 1rem; 
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      background-color: #fff;
+      color: var(--text-main);
+      box-sizing: border-box;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--cc-navy);
+      box-shadow: 0 0 0 3px rgba(0, 33, 71, 0.1);
+    }
+
+    button { 
+      width: 100%; 
+      padding: 14px; 
+      margin-top: 24px; 
+      font-size: 1rem; 
+      font-weight: 600;
+      color: #ffffff;
+      background-color: var(--cc-navy);
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-sizing: border-box;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    button:hover {
+      background-color: #003366;
+    }
+
+    button:active {
+      transform: scale(0.99);
+    }
+
+    button:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .message-container {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .message-container h2 {
+      color: var(--cc-navy);
+      font-size: 1.3rem;
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div id="form-container">
-    <h2>Student Service Check-in</h2>
-    <label for="serviceSelect">Please select the service area you are using:</label>
-    <select id="serviceSelect">
-      <option value="Learning Centre">Learning Centre</option>
-      <option value="Counselling">Counselling</option>
-      <option value="Workshop">Workshop</option>
-      <option value="Clubs">Peer Tutoring</option>
-    </select>
-    <button id="checkinBtn" onclick="submitCheckin()">Check In</button>
-  </div>
+  <div class="card">
+    <div id="form-container">
+      <h2>Coquitlam College</h2>
+      <label for="serviceSelect">Select the service area you are using today:</label>
+      <select id="serviceSelect">
+        <option value="Learning Centre">Learning Centre</option>
+        <option value="Counselling">Counselling</option>
+        <option value="Workshop">Workshop</option>
+        <option value="Clubs">Peer Tutoring</option>
+      </select>
+      <button id="checkinBtn" onclick="submitCheckin()">Check In</button>
+    </div>
 
-  <h2 id="message" class="hidden"></h2>
+    <div id="message" class="message-container hidden">
+      <h2>Check-in Recorded</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 8px;">Thank you. Have a productive session.</p>
+    </div>
+  </div>
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk_M5DMH90XepLKWT6m9SFihrQYDeHaJwrP1q8s1yK3l-WvH_7iLAK-C9982CeRUW3ZQ/exec";
@@ -40,7 +151,8 @@
       if (lastCheckin && (now - lastCheckin < COOLDOWN_MINUTES * 60 * 1000)) {
         document.getElementById("form-container").classList.add("hidden");
         const msg = document.getElementById("message");
-        msg.innerText = "You have already checked in recently from this device.";
+        msg.querySelector("h2").innerText = "Already Checked In";
+        msg.querySelector("p").innerText = "You have already checked in recently from this device.";
         msg.classList.remove("hidden");
         return;
       }
@@ -50,7 +162,6 @@
       btn.disabled = true;
       btn.innerText = "Recording...";
 
-      // Send as POST with no-cors to bypass browser blocking
       fetch(SCRIPT_URL, {
         method: "POST",
         mode: "no-cors",
@@ -62,9 +173,7 @@
       .then(() => {
         localStorage.setItem("last_checkin_time", now);
         document.getElementById("form-container").classList.add("hidden");
-        const msg = document.getElementById("message");
-        msg.innerText = "Check-in recorded. Thank you.";
-        msg.classList.remove("hidden");
+        document.getElementById("message").classList.remove("hidden");
       })
       .catch(error => {
         btn.disabled = false;
