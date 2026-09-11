@@ -4,7 +4,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Coquitlam College Service Check-in</title>
-  <!-- Load brand fonts from Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
@@ -133,7 +132,7 @@
         <option value="Learning Centre">Learning Centre</option>
         <option value="Counselling">Counselling</option>
         <option value="Workshop">Workshop</option>
-        <option value="Clubs">Peer Tutoring</option>
+        <option value="Peer Tutoring">Peer Tutoring</option>
       </select>
       <button id="checkinBtn" onclick="submitCheckin()">Check In</button>
     </div>
@@ -172,25 +171,17 @@
       btn.disabled = true;
       btn.innerText = "Recording...";
 
-      fetch(SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ service: service, deviceId: deviceId })
-      })
-      .then(() => {
+      // Construct final URL with exact query params
+      const targetUrl = `${SCRIPT_URL}?service=${encodeURIComponent(service)}&deviceId=${encodeURIComponent(deviceId)}`;
+
+      // Use a hidden image beacon approach to bypass CORS completely without needing response parsing
+      const img = new Image();
+      img.onload = img.onerror = function() {
         localStorage.setItem("last_checkin_time", now);
         document.getElementById("form-container").classList.add("hidden");
         document.getElementById("message").classList.remove("hidden");
-      })
-      .catch(error => {
-        btn.disabled = false;
-        btn.innerText = "Check In";
-        alert("Error recording visit. Please try again.");
-        console.error(error);
-      });
+      };
+      img.src = targetUrl;
     }
   </script>
 </body>
