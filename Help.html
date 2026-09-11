@@ -153,7 +153,7 @@
       localStorage.setItem("campus_device_id", deviceId);
     }
 
-    function submitCheckin() {
+   function submitCheckin() {
       const lastCheckin = localStorage.getItem("last_checkin_time");
       const now = new Date().getTime();
 
@@ -171,8 +171,22 @@
       btn.disabled = true;
       btn.innerText = "Recording...";
 
-      // Construct final URL with exact query params
+      // Build target URL with explicit query parameters
       const targetUrl = `${SCRIPT_URL}?service=${encodeURIComponent(service)}&deviceId=${encodeURIComponent(deviceId)}`;
+
+      fetch(targetUrl, { mode: 'no-cors' })
+        .then(() => {
+          localStorage.setItem("last_checkin_time", now);
+          document.getElementById("form-container").classList.add("hidden");
+          document.getElementById("message").classList.remove("hidden");
+        })
+        .catch(error => {
+          btn.disabled = false;
+          btn.innerText = "Check In";
+          alert("Error recording visit. Please try again.");
+          console.error(error);
+        });
+    }
 
       // Use a hidden image beacon approach to bypass CORS completely without needing response parsing
       const img = new Image();
