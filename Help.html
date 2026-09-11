@@ -1,4 +1,3 @@
-HTML
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
@@ -26,12 +25,11 @@ HTML
 
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk_M5DMH90XepLKWT6m9SFihrQYDeHaJwrP1q8s1yK3l-WvH_7iLAK-C9982CeRUW3ZQ/exec";
-    const COOLDOWN_MINUTES = 30; // Prevent duplicate check-ins within this window
+    const COOLDOWN_MINUTES = 30;
 
-    // Get or create a persistent unique device ID
     let deviceId = localStorage.getItem("campus_device_id");
     if (!deviceId) {
-      deviceId = 'dev_' + Math.random().toString(36.substring(2)) + Date.now().toString(36);
+      deviceId = 'dev_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
       localStorage.setItem("campus_device_id", deviceId);
     }
 
@@ -39,7 +37,6 @@ HTML
       const lastCheckin = localStorage.getItem("last_checkin_time");
       const now = new Date().getTime();
 
-      // Check if device is still in cooldown
       if (lastCheckin && (now - lastCheckin < COOLDOWN_MINUTES * 60 * 1000)) {
         document.getElementById("form-container").classList.add("hidden");
         const msg = document.getElementById("message");
@@ -53,23 +50,28 @@ HTML
       btn.disabled = true;
       btn.innerText = "Recording...";
 
-      const url = `${SCRIPT_URL}?service=${encodeURIComponent(service)}&deviceId=${encodeURIComponent(deviceId)}`;
-
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          localStorage.setItem("last_checkin_time", now);
-          document.getElementById("form-container").classList.add("hidden");
-          const msg = document.getElementById("message");
-          msg.innerText = "Check-in recorded. Thank you.";
-          msg.classList.remove("hidden");
-        })
-        .catch(error => {
-          btn.disabled = false;
-          btn.innerText = "Check In";
-          alert("Error recording visit. Please try again.");
-          console.error(error);
-        });
+      // Send as POST with no-cors to bypass browser blocking
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ service: service, deviceId: deviceId })
+      })
+      .then(() => {
+        localStorage.setItem("last_checkin_time", now);
+        document.getElementById("form-container").classList.add("hidden");
+        const msg = document.getElementById("message");
+        msg.innerText = "Check-in recorded. Thank you.";
+        msg.classList.remove("hidden");
+      })
+      .catch(error => {
+        btn.disabled = false;
+        btn.innerText = "Check In";
+        alert("Error recording visit. Please try again.");
+        console.error(error);
+      });
     }
   </script>
 </body>
